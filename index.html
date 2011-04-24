@@ -220,13 +220,13 @@
 	}
 	
 	var planets = [];
-	var sun = new Planet("sun", planets, 1.0820893e+7, 0, 1, 1, "sun.png");
-	var mercury = new Planet("mercury", planets, 6.0518e+6, 1.0820893e+11, years(0.81) , days(0.1) , "mercury.png");
-	var venus = new Planet("venus", planets, 6.0518e+6, 1.0820893e+11, years(0.81) , days(0.1) , "venus.png");
+	var sun = new Planet("sun", planets, 1.392e+9/100, 0, 1, 1, "sun.png");
+	var mercury = new Planet("mercury", planets, 2.4397e+6, 57.9091e+9, days(87.9691) , days(58.646) , "mercury.png");
+	var venus = new Planet("venus", planets, 6.0518e+6, 108.20893e+9, years(0.81) , days(0.1) , "venus.png");
 	var earth = new Planet("earth", planets, 6.371e+6, 1.495978707e+11, years(1) , days(1) , "earth.jpg");
 		var moonOrbit = 3.893e+10; // real number 3.893e+8
 		var moon = new Planet("moon", earth.satellites, 1.7375e+6, moonOrbit, days(28) , days(28), "moon.gif");
-	var mars = new Planet("mars", planets, 3.3962e+6, 2.27939100e+11, years(1.5) , days(100) , "mars.png");
+	var mars = new Planet("mars", planets, 3.3962e+6, 2.27939100e+11, years(1.8808476) , hours(24.622962) , "mars.png");
 	var jupiter = new Planet("jupiter", planets, 3.3962e+6, 2.27939100e+11, years(1.5) , days(100) , "jupiter.png");
 	var saturn = new Planet("saturn", planets, 3.3962e+6, 2.27939100e+11, years(1.5) , days(100) , "saturn.png");
 	var uranus = new Planet("uranus", planets, 3.3962e+6, 2.27939100e+11, years(1.5) , days(100) , "uranus.png");
@@ -390,16 +390,22 @@
         if (lighting) {
             gl.uniform3f(
                 shaderProgram.ambientColorUniform,
+				1,1,1
+				/*
                 parseFloat(document.getElementById("ambientR").value),
                 parseFloat(document.getElementById("ambientG").value),
                 parseFloat(document.getElementById("ambientB").value)
-            );
+				*/
+			);
 
             gl.uniform3f(
                 shaderProgram.pointLightingLocationUniform,
-                parseFloat(document.getElementById("lightPositionX").value),
+				0, 0, -9
+                /*
+				parseFloat(document.getElementById("lightPositionX").value),
                 parseFloat(document.getElementById("lightPositionY").value),
                 parseFloat(document.getElementById("lightPositionZ").value)
+				*/
             );
 
             gl.uniform3f(
