@@ -64,7 +64,7 @@
 
     var gl;
 	var scale = 1 / 1e+8;
-	var distanceScale = 1 / 5e+2;  // used to scale the distance between planets, while maintaining their relative sizes.
+	var distanceScale = 1 / 1000;  // used to scale the distance between planets, while maintaining their relative sizes.
 	var animationSpeed = 1e+7;
 
     function initGL(canvas) {
@@ -167,6 +167,8 @@
     function initTextures() {
 		moon.initTexture();
 		earth.initTexture();
+		mars.initTexture();
+		venus.initTexture();
     }
 
 
@@ -207,17 +209,22 @@
 	}
 	
 	function yearsToMillis(years) {
-		return daysToMillis(365.24);
+		return daysToMillis(365.24 * years);
 	}
-
-	var earth = new Planet(6.371e+6, 1.495978707e+11, new Date(yearsToMillis(1)) , new Date(daysToMillis(1)) , "earth.jpg");
-	var moon = new Planet(1.7375e+6, 3.893e+8, new Date(daysToMillis(28)) , new Date(daysToMillis(28)), "moon.gif");
+	
 	var planets = [];
-	planets.push(earth);
-	planets.push(moon);
-	earth.satellites.push(moon);
 
-	function Planet(radius, axisLength, orbitalPeriod, rotationalPeriod, textureSrc){
+	var venus = new Planet("venus", planets, 6.0518e+6, 1.0820893e+11, new Date(yearsToMillis(0.81)) , new Date(daysToMillis(0.1)) , "venus.png");
+	var earth = new Planet("earth", planets, 6.371e+6, 1.495978707e+11, new Date(yearsToMillis(1)) , new Date(daysToMillis(1)) , "earth.jpg");
+		var moonOrbit = 3.893e+10; // real number 3.893e+8
+		var moon = new Planet("moon", earth.satellites, 1.7375e+6, moonOrbit, new Date(daysToMillis(28)) , new Date(daysToMillis(28)), "moon.gif");
+	var mars = new Planet("mars", planets, 3.3962e+6, 2.27939100e+11, new Date(yearsToMillis(1.5)) , new Date(daysToMillis(100)) , "mars.png");
+	
+
+	function Planet(name, collection, radius, axisLength, orbitalPeriod, rotationalPeriod, textureSrc){
+		collection.push(this);
+		
+		this.name = name;
 		this.radius = radius * scale;
 		this.axisLength = axisLength * scale * distanceScale;
 		this.quality = 30;
@@ -227,6 +234,7 @@
 		this.orbitalAngle = 0;
 		this.rotationalAngle = 0;
 		this.satellites = [];
+		
 		
 		// methods
 		this.initTexture = function(){
@@ -313,6 +321,37 @@
 			this.vertexIndexBuffer.itemSize = 1;
 			this.vertexIndexBuffer.numItems = indexData.length;
 		}
+	
+		this.draw = function(){	
+			mvPushMatrix();
+			mat4.rotate(mvMatrix, this.orbitalAngle, [0, 1, 0]);
+			mat4.translate(mvMatrix, [this.axisLength, 0, 0]);
+			
+			for (s in this.satellites){
+				mvPushMatrix();
+				this.satellites[s].draw();
+				mvPopMatrix();
+			}
+			
+			mat4.rotate(mvMatrix, this.rotationalAngle, [0,1,0]);
+			gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexPositionBuffer);
+			gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, this.vertexPositionBuffer.itemSize, gl.FLOAT, false, 0, 0);
+
+			gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexNormalBuffer);
+			gl.vertexAttribPointer(shaderProgram.vertexNormalAttribute, this.vertexNormalBuffer.itemSize, gl.FLOAT, false, 0, 0);
+
+			gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexTextureCoordBuffer);
+			gl.vertexAttribPointer(shaderProgram.textureCoordAttribute, this.vertexTextureCoordBuffer.itemSize, gl.FLOAT, false, 0, 0);
+
+			gl.activeTexture(gl.TEXTURE0);
+			gl.bindTexture(gl.TEXTURE_2D, this.texture);
+			gl.uniform1i(shaderProgram.samplerUniform, 0);
+
+			gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.vertexIndexBuffer);
+			setMatrixUniforms();
+			gl.drawElements(gl.TRIANGLES, this.vertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
+			mvPopMatrix();
+		}
 	}
 	
 
@@ -320,6 +359,8 @@
 	
     function initBuffers() {    
 		earth.initBuffers();
+		mars.initBuffers();
+		venus.initBuffers();
 		moon.initBuffers();
     }
 
@@ -360,61 +401,25 @@
 
         mat4.identity(mvMatrix);
 
-		//mat4.rotate(mvMatrix, Math.PI, [0, 1, 0]);
-        mat4.translate(mvMatrix, [0, 0, -5]);
-
+		
+        mat4.translate(mvMatrix, [0, 0, -6]);
+        mat4.rotate(mvMatrix, Math.PI / 2, [1, 0, 0]);
 		
 
 		
-		// TODO: DRY
-        mvPushMatrix();
-        mat4.rotate(mvMatrix, earth.orbitalAngle, [0, 1, 0]);
-        mat4.translate(mvMatrix, [earth.axisLength, 0, 0]); //386.7
 		
-		mvPushMatrix();
-        mat4.rotate(mvMatrix, degToRad(moon.orbitalAngle), [0, 1, 0]);
-        mat4.translate(mvMatrix, [moon.axisLength, 0, 0]); //3.87673
-        gl.activeTexture(gl.TEXTURE0);
-        gl.bindTexture(gl.TEXTURE_2D, moon.texture);
-        gl.uniform1i(shaderProgram.samplerUniform, 0);
-
-        gl.bindBuffer(gl.ARRAY_BUFFER, moon.vertexPositionBuffer);
-        gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, moon.vertexPositionBuffer.itemSize, gl.FLOAT, false, 0, 0);
-
-        gl.bindBuffer(gl.ARRAY_BUFFER, moon.vertexTextureCoordBuffer);
-        gl.vertexAttribPointer(shaderProgram.textureCoordAttribute, moon.vertexTextureCoordBuffer.itemSize, gl.FLOAT, false, 0, 0);
-
-        gl.bindBuffer(gl.ARRAY_BUFFER, moon.vertexNormalBuffer);
-        gl.vertexAttribPointer(shaderProgram.vertexNormalAttribute, moon.vertexNormalBuffer.itemSize, gl.FLOAT, false, 0, 0);
-
-        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, moon.vertexIndexBuffer);
-        setMatrixUniforms();
-        gl.drawElements(gl.TRIANGLES, moon.vertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
-        mvPopMatrix();
-		
-		
-		mat4.rotate(mvMatrix, earth.rotationalAngle, [0,1,0]);
-        gl.bindBuffer(gl.ARRAY_BUFFER, earth.vertexPositionBuffer);
-        gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, earth.vertexPositionBuffer.itemSize, gl.FLOAT, false, 0, 0);
-
-        gl.bindBuffer(gl.ARRAY_BUFFER, earth.vertexNormalBuffer);
-        gl.vertexAttribPointer(shaderProgram.vertexNormalAttribute, earth.vertexNormalBuffer.itemSize, gl.FLOAT, false, 0, 0);
-
-        gl.bindBuffer(gl.ARRAY_BUFFER, earth.vertexTextureCoordBuffer);
-        gl.vertexAttribPointer(shaderProgram.textureCoordAttribute, earth.vertexTextureCoordBuffer.itemSize, gl.FLOAT, false, 0, 0);
-
-        gl.activeTexture(gl.TEXTURE0);
-        gl.bindTexture(gl.TEXTURE_2D, earth.texture);
-        gl.uniform1i(shaderProgram.samplerUniform, 0);
-
-        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, earth.vertexIndexBuffer);
-        setMatrixUniforms();
-        gl.drawElements(gl.TRIANGLES, earth.vertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
-        
-		
-
-		
-		mvPopMatrix();
+		for (p in planets) {
+			//mvPushMatrix();
+			planets[p].draw();
+			/*
+			var satellites = planets[p].satellites;
+			for (s in satellites){
+				mvPushMatrix();
+				satellites[s].draw();
+				mvPopMatrix();
+			}*/
+			//mvPopMatrix();
+	    }	
     }
 
 
@@ -424,11 +429,17 @@
         var timeNow = new Date().getTime();
         if (lastTime != 0) {
             var elapsed = timeNow - lastTime;
-
-            moon.orbitalAngle += (elapsed *  animationSpeed  / moon.orbitalPeriod);
-            earth.orbitalAngle += (elapsed *  animationSpeed  / earth.orbitalPeriod);
-			moon.rotationalAngle += (elapsed *  animationSpeed  / moon.rotationalPeriod);
-            earth.rotationalAngle += (elapsed *  animationSpeed  / earth.rotationalPeriod);
+			
+			for (p in planets){
+				planets[p].orbitalAngle += (elapsed *  animationSpeed  / planets[p].orbitalPeriod);
+				planets[p].rotationalAngle += (elapsed *  animationSpeed  / planets[p].rotationalPeriod);
+				
+				var satellites = planets[p].satellites;
+				for (s in satellites){
+					satellites[s].orbitalAngle += (elapsed *  animationSpeed  / satellites[s].orbitalPeriod);			
+					satellites[s].rotationalAngle += (elapsed *  animationSpeed  / satellites[s].rotationalPeriod);
+				}
+			}
         }
         lastTime = timeNow;
     }
@@ -467,9 +478,9 @@
     <br />
 
 
-            <input type="hidden" id="lightPositionX" value="10.0" />
+            <input type="hidden" id="lightPositionX" value="0.0" />
             <input type="hidden" id="lightPositionY" value="0.0" />
-			<input type="hidden" id="lightPositionZ" value="0.0" />
+			<input type="hidden" id="lightPositionZ" value="-5.0" />
 
             <input type="hidden" id="pointR" value="0.8" />
             <input type="hidden" id="pointG" value="0.8" />
