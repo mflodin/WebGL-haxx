@@ -220,16 +220,18 @@
 	}
 	
 	var planets = [];
-
+	var sun = new Planet("sun", planets, 1.0820893e+7, 0, 1, 1, "sun.png");
 	var mercury = new Planet("mercury", planets, 6.0518e+6, 1.0820893e+11, years(0.81) , days(0.1) , "mercury.png");
 	var venus = new Planet("venus", planets, 6.0518e+6, 1.0820893e+11, years(0.81) , days(0.1) , "venus.png");
 	var earth = new Planet("earth", planets, 6.371e+6, 1.495978707e+11, years(1) , days(1) , "earth.jpg");
 		var moonOrbit = 3.893e+10; // real number 3.893e+8
 		var moon = new Planet("moon", earth.satellites, 1.7375e+6, moonOrbit, days(28) , days(28), "moon.gif");
 	var mars = new Planet("mars", planets, 3.3962e+6, 2.27939100e+11, years(1.5) , days(100) , "mars.png");
+	var jupiter = new Planet("jupiter", planets, 3.3962e+6, 2.27939100e+11, years(1.5) , days(100) , "jupiter.png");
+	var saturn = new Planet("saturn", planets, 3.3962e+6, 2.27939100e+11, years(1.5) , days(100) , "saturn.png");
+	var uranus = new Planet("uranus", planets, 3.3962e+6, 2.27939100e+11, years(1.5) , days(100) , "uranus.png");
+	var neptune = new Planet("neptune", planets, 3.3962e+6, 2.27939100e+11, years(1.5) , days(100) , "neptune.png");
 	
-	
-
 	function Planet(name, collection, radius, axisLength, orbitalPeriod, rotationalPeriod, textureSrc){
 		collection.push(this);
 		
@@ -411,7 +413,7 @@
         mat4.identity(mvMatrix);
 
 		
-        mat4.translate(mvMatrix, [0, 0, -6]);
+        mat4.translate(mvMatrix, [0, 0, -10]);
         mat4.rotate(mvMatrix, Math.PI / 2, [1, 0, 0]);
 		
 
