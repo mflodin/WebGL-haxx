@@ -207,22 +207,26 @@
         return degrees * Math.PI / 180;
     }
 	
-	function daysToMillis(days) {
-		return days * 24 * 60 * 60 * 1000;
+	function hours(h){
+		return h * 60 * 60 * 1000;
 	}
 	
-	function yearsToMillis(years) {
-		return daysToMillis(365.24 * years);
+	function days(d) {
+		return hours(d * 24);
+	}
+	
+	function years(y) {
+		return days(365.24 * y);
 	}
 	
 	var planets = [];
 
-	var mercury = new Planet("mercury", planets, 6.0518e+6, 1.0820893e+11, new Date(yearsToMillis(0.81)) , new Date(daysToMillis(0.1)) , "mercury.png");
-	var venus = new Planet("venus", planets, 6.0518e+6, 1.0820893e+11, new Date(yearsToMillis(0.81)) , new Date(daysToMillis(0.1)) , "venus.png");
-	var earth = new Planet("earth", planets, 6.371e+6, 1.495978707e+11, new Date(yearsToMillis(1)) , new Date(daysToMillis(1)) , "earth.jpg");
+	var mercury = new Planet("mercury", planets, 6.0518e+6, 1.0820893e+11, years(0.81) , days(0.1) , "mercury.png");
+	var venus = new Planet("venus", planets, 6.0518e+6, 1.0820893e+11, years(0.81) , days(0.1) , "venus.png");
+	var earth = new Planet("earth", planets, 6.371e+6, 1.495978707e+11, years(1) , days(1) , "earth.jpg");
 		var moonOrbit = 3.893e+10; // real number 3.893e+8
-		var moon = new Planet("moon", earth.satellites, 1.7375e+6, moonOrbit, new Date(daysToMillis(28)) , new Date(daysToMillis(28)), "moon.gif");
-	var mars = new Planet("mars", planets, 3.3962e+6, 2.27939100e+11, new Date(yearsToMillis(1.5)) , new Date(daysToMillis(100)) , "mars.png");
+		var moon = new Planet("moon", earth.satellites, 1.7375e+6, moonOrbit, days(28) , days(28), "moon.gif");
+	var mars = new Planet("mars", planets, 3.3962e+6, 2.27939100e+11, years(1.5) , days(100) , "mars.png");
 	
 	
 
@@ -234,9 +238,9 @@
 		this.axisLength = axisLength * scale * distanceScale;
 		this.quality = 30;
 		this.textureSrc = textureSrc;
-		this.orbitalPeriod = orbitalPeriod.getTime();
-		this.rotationalPeriod = rotationalPeriod.getTime();
-		this.orbitalAngle = 0;
+		this.orbitalPeriod = orbitalPeriod;
+		this.rotationalPeriod = rotationalPeriod;
+		this.orbitalAngle = Math.random() * Math.PI * 2; // randomize starting location
 		this.rotationalAngle = 0;
 		this.satellites = [];
 		
