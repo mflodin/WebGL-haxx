@@ -165,10 +165,13 @@
     }
 
     function initTextures() {
-		moon.initTexture();
-		earth.initTexture();
-		mars.initTexture();
-		venus.initTexture();
+		for (p in planets) {
+			planets[p].initTexture();
+			var satellites = planets[p].satellites;
+			for (s in satellites){
+				satellites[s].initTexture();
+			}
+	    }
     }
 
 
@@ -214,11 +217,13 @@
 	
 	var planets = [];
 
+	var mercury = new Planet("mercury", planets, 6.0518e+6, 1.0820893e+11, new Date(yearsToMillis(0.81)) , new Date(daysToMillis(0.1)) , "mercury.png");
 	var venus = new Planet("venus", planets, 6.0518e+6, 1.0820893e+11, new Date(yearsToMillis(0.81)) , new Date(daysToMillis(0.1)) , "venus.png");
 	var earth = new Planet("earth", planets, 6.371e+6, 1.495978707e+11, new Date(yearsToMillis(1)) , new Date(daysToMillis(1)) , "earth.jpg");
 		var moonOrbit = 3.893e+10; // real number 3.893e+8
 		var moon = new Planet("moon", earth.satellites, 1.7375e+6, moonOrbit, new Date(daysToMillis(28)) , new Date(daysToMillis(28)), "moon.gif");
 	var mars = new Planet("mars", planets, 3.3962e+6, 2.27939100e+11, new Date(yearsToMillis(1.5)) , new Date(daysToMillis(100)) , "mars.png");
+	
 	
 
 	function Planet(name, collection, radius, axisLength, orbitalPeriod, rotationalPeriod, textureSrc){
@@ -358,15 +363,15 @@
 
 	
     function initBuffers() {    
-		earth.initBuffers();
-		mars.initBuffers();
-		venus.initBuffers();
-		moon.initBuffers();
+		for (p in planets) {
+			planets[p].initBuffers();
+			var satellites = planets[p].satellites;
+			for (s in satellites){
+				satellites[s].initBuffers();
+			}
+	    }
     }
 
-
-    //var moon.orbitalAngle = 180;
-    //var earth.orbitalAngle = 0;
 
     function drawScene() {
         gl.viewport(0, 0, gl.viewportWidth, gl.viewportHeight);
